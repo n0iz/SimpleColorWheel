@@ -1,3 +1,4 @@
+// Copyright (c) n0iz 2024. All Rights Reserved.
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 
 #include "ColorWheelHelper.h"
@@ -79,4 +80,10 @@ FColor UColorWheelHelper::RandomColor(bool RandomAlpha, bool TrueRandom)
     if (RandomAlpha) OutColor.A = FMath::Rand();
     
     return OutColor;
+}
+
+FColorHSV UColorWheelHelper::LinearColorToHSV(const FLinearColor& Color)
+{
+    FLinearColor HSVColor = Color.LinearRGBToHSV();
+    return FColorHSV(HSVColor.R, HSVColor.G, HSVColor.B, HSVColor.A);
 }

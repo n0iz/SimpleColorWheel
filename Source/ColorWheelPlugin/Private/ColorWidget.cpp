@@ -1,6 +1,11 @@
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 
 #include "ColorWidget.h"
+#include "ColorWheelTypes.h"
+#include "Misc/Attribute.h"
+#include "Input/Reply.h"
+#include "Widgets/DeclarativeSyntaxSupport.h"
+#include "Framework/SlateDelegates.h"
 
 /// Slate Overrides ///
 
@@ -12,7 +17,7 @@ TSharedRef<SWidget> UColorWidget::RebuildWidget()
                 .HueCircle(&HueCircle)
                 .OnMouseCaptureBegin_UObject(this, &UColorWidget::MouseDown)
                 .OnMouseCaptureEnd_UObject(this, &UColorWidget::MouseUp)
-                .OnValueChanged(FOnLinearColorValueChanged::CreateUObject(this, &UColorWidget::OnValueChanged))
+                .OnValueChanged(FOnColorHSVChanged::CreateUObject(this, &UColorWidget::OnColorWheelValueChanged))
                 .OnPositionChanged(FOnPositionChanged::CreateUObject(this, &UColorWidget::OnPositionUpdated));
 	
     return ColorWheel.ToSharedRef();
@@ -25,9 +30,10 @@ void UColorWidget::ReleaseSlateResources(bool bReleaseChildren)
     ColorWheel.Reset();
 }
 
-void UColorWidget::OnValueChanged(FLinearColor NewValue)
+void UColorWidget::OnColorWheelValueChanged(FColorHSV NewValue)
 {
-    Color = NewValue.HSVToLinearRGB();
+    Color.H = NewValue.H;
+    Color.S = NewValue.S;
     OnColorChanged.Broadcast(Color);
 }
 
@@ -40,37 +46,54 @@ void UColorWidget::OnPositionUpdated(FVector2D NewPosition)
 
 /// Main Functions ///
 
-void UColorWidget::SetColor(const FLinearColor NewColor)
+void UColorWidget::SetColor(const FColorHSV NewColor, bool BroadcastUpdate)
 {
-    // Incase of Black, the wheel gets fucked ヽ(`Д´)ﾉ︵ ┻━┻.
-    if (NewColor.IsAlmostBlack())
-    {
-        // We pass in a false value
-        Color = FLinearColor::White;
-        
-        // Preserve alpha.
-        Color.A = NewColor.A;
-        IsNull = true;
-        
-        return;
-    }
-
     Color = NewColor;
-    IsNull = false;
+
+    if (BroadcastUpdate)
+    {
+        OnColorChanged.Broadcast(Color);
+    }
 }
 
-FLinearColor UColorWidget::GetCurrentColor()
+void UColorWidget::SetHue(float NewHue, bool BroadcastUpdate)
 {
-    // Was input black?
-    if (IsNull)
+    Color.H = NewHue;    
+    if(BroadcastUpdate)
     {
-        // Return black color
-        auto FallbackVal = FLinearColor::Black;
-        FallbackVal.A = Color.A;
-        
-        return FallbackVal;
+        OnColorChanged.Broadcast(Color);
     }
+}
 
+void UColorWidget::SetSaturation(float NewSaturation, bool BroadcastUpdate)
+{
+    Color.S = NewSaturation;
+    if (BroadcastUpdate)
+    {
+        OnColorChanged.Broadcast(Color);
+    }
+}
+
+void UColorWidget::SetValue(float NewValue, bool BroadcastUpdate)
+{
+    Color.V = NewValue;
+    if (BroadcastUpdate)
+    {
+        OnColorChanged.Broadcast(Color);
+    }
+}
+
+void UColorWidget::SetAlpha(float NewAlpha, bool BroadcastUpdate)
+{
+    Color.A = NewAlpha;
+    if (BroadcastUpdate)
+    {
+        OnColorChanged.Broadcast(Color);
+    }
+}
+
+FColorHSV UColorWidget::GetCurrentColor()
+{
     return Color;
 }
 

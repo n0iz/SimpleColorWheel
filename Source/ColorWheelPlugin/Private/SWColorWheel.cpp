@@ -1,3 +1,4 @@
+// Copyright (c) n0iz 2024. All Rights Reserved.
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 // modified code of SColorWheel, Original by Copyright Epic Games, Inc. All Rights Reserved.
 
@@ -130,8 +131,8 @@ FVector2D SWColorWheel::CalcRelativePositionFromCenter() const
 	 * R = Hue
 	 * G = Saturation / Radius
 	 */
-	float Angle = SelectedColor.Get().R / 180.0f * PI;
-	return FVector2D(FMath::Cos(Angle), FMath::Sin(Angle)) * SelectedColor.Get().G;
+	float Angle = SelectedColor.Get().H / 180.0f * PI;
+	return FVector2D(FMath::Cos(Angle), FMath::Sin(Angle)) * SelectedColor.Get().S;
 }
 
 
@@ -152,10 +153,10 @@ bool SWColorWheel::ProcessMouseAction(const FGeometry& MyGeometry, const FPointe
 		if (Angle < 0.0f)
 			Angle += 2.0f * PI;
 
-		FLinearColor NewColor = SelectedColor.Get();
+		FColorHSV NewColor = SelectedColor.Get();
 		{
-			NewColor.R = Angle * 180.0f * INV_PI;
-			NewColor.G = FMath::Min(RelativeRadius, 1.0f);
+			NewColor.H = Angle * 180.0f * INV_PI;
+			NewColor.S = FMath::Min(RelativeRadius, 1.0f);
 		}
 
 		OnValueChanged.ExecuteIfBound(NewColor);

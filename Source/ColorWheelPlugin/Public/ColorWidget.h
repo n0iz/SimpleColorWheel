@@ -1,3 +1,4 @@
+// Copyright (c) n0iz 2024. All Rights Reserved.
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 
 #pragma once
@@ -20,7 +21,7 @@ class SWColorWheel;
    Delegate: Broadcasted when a color change has occured.
    Param 1: FLinearColor | The new Color that has been set.
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FColorChangedEvent, const FLinearColor&, NewColor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FColorChangedEvent, const FColorHSV&, NewColor);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPositionUpdatedEvent, const FVector2D&, NewPosition);
 
@@ -83,14 +84,28 @@ public:
 	*	@param NewColor			A new linear color value
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Color Wheel|Functions", meta=(DisplayName="Set Color", Keywords = "set color wheel"))
-    void SetColor(const FLinearColor NewColor);
+    void SetColor(const FColorHSV NewColor, bool BroadcastUpdate = false);
+
+    UFUNCTION(BlueprintCallable, Category = "Color Wheel|Functions", meta = (DisplayName = "Set Hue", Keywords = "set color hsv"))
+    void SetHue(float NewHue, bool BroadcastUpdate = false);
+
+    UFUNCTION(BlueprintCallable, Category = "Color Wheel|Functions", meta = (DisplayName = "Set Saturation", Keywords = "set color hsv"))
+    void SetSaturation(float NewSaturation, bool BroadcastUpdate = false);
+
+    UFUNCTION(BlueprintCallable, Category = "Color Wheel|Functions", meta = (DisplayName = "Set Value", Keywords = "set color hsv"))
+    void SetValue(float NewValue, bool BroadcastUpdate = false);
+
+    UFUNCTION(BlueprintCallable, Category = "Color Wheel|Functions", meta = (DisplayName = "Set Alpha", Keywords = "set color hsv"))
+    void SetAlpha(float NewAlpha, bool BroadcastUpdate = false);
+
+	
 
 	/**
 	*	Gets the color of the colorwheel
 	*	@return 				The current color of the colorwheel
 	*/
 	UFUNCTION(BlueprintPure, Category = "Color Wheel|Functions", meta=(DisplayName="Get Color", Keywords = "get color wheel"))
-    FLinearColor GetCurrentColor();
+	FColorHSV GetCurrentColor();
 
 	///Generics///
 	
@@ -122,24 +137,15 @@ protected:
 	\============================================================================*/
 	
 private:
-
-	/*
-	 * TODO: Hack to avoid inactive colorwheel.
-	 * In order to avoid a issue where when we detect that the color is completely null we send in a false value to the color wheel
-	 * while when we retrieve the value we return actually the null value.
-	 *
-	 * For now this helps avoid this issue, but I must look deeper into it.
-	 */
-	bool IsNull;
 	
 	// Shared Ptr to the colorwheel.
 	TSharedPtr<SWColorWheel> ColorWheel;
 
 	// Default color the widget gets constructed with.
-	FLinearColor Color = FLinearColor::White;
+	FColorHSV Color = FLinearColor::White;
 
 	// Callback Function: Handles the broadcasting of the delegate once a color changes.
-	void OnValueChanged(FLinearColor NewValue);
+	void OnColorWheelValueChanged(FColorHSV NewValue);
 
 	void OnPositionUpdated(FVector2D NewPosition);
 
@@ -150,7 +156,7 @@ private:
 	inline void MouseDown()  { OnMouseDown.Broadcast(); };
 
 	// Callback Function: For when the widget gets constructed, passes the color, gets set on line 102.
-	inline FLinearColor GetColor() const { return Color.LinearRGBToHSV(); };
+	inline FColorHSV GetColor() const { return Color; };
 
 
 };

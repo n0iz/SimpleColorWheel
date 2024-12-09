@@ -1,3 +1,4 @@
+// Copyright (c) n0iz 2024. All Rights Reserved.
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 // modified code of SColorWheel, Original by Copyright Epic Games, Inc. All Rights Reserved.
 
@@ -15,12 +16,15 @@
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "ColorWheelHelper.h"
+#include "ColorWheelTypes.h"
+
 
 class FPaintArgs;
 class FSlateWindowElementList;
 struct FSlateBrush;
 
 DECLARE_DELEGATE_OneParam(FOnPositionChanged, FVector2D)
+DECLARE_DELEGATE_OneParam(FOnColorHSVChanged, FColorHSV)
 
 // Used for some of the Color wheels UFUNCTIONS to specify the target brush.
 UENUM()
@@ -58,7 +62,7 @@ public:
         /// Attributes ///
     
         /** The current color selected by the user. */
-        SLATE_ATTRIBUTE(FLinearColor, SelectedColor)
+        SLATE_ATTRIBUTE(FColorHSV, SelectedColor)
 
         /// Arguments ///
     
@@ -77,7 +81,7 @@ public:
         SLATE_EVENT(FSimpleDelegate, OnMouseCaptureEnd)
 
         /** Invoked when a new value is selected on the color wheel. */
-        SLATE_EVENT(FOnLinearColorValueChanged, OnValueChanged)
+        SLATE_EVENT(FOnColorHSVChanged, OnValueChanged)
 
         /** Invoked when a new value is selected on the widget wheel. */
         SLATE_EVENT(FOnPositionChanged, OnPositionChanged);
@@ -140,7 +144,7 @@ private:
     const FSlateBrush* SelectorImage;
     
     /** The current color selected by the user. */
-    TAttribute<FLinearColor> SelectedColor;
+    TAttribute<FColorHSV> SelectedColor;
 
     /** Color and opacity scale for the selector pin */
     TAttribute<FSlateColor> PinColorAndOpacity = FLinearColor::White;
@@ -158,7 +162,7 @@ private:
     FSimpleDelegate OnMouseCaptureEnd;
 
     /** Invoked when a new value is selected on the color wheel. */
-    FOnLinearColorValueChanged OnValueChanged;
+    FOnColorHSVChanged OnValueChanged;
 
 	/** Invoked when a new value is selected on the color wheel. */
     FOnPositionChanged OnPositionChanged;

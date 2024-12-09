@@ -1,3 +1,4 @@
+// Copyright (c) n0iz 2024. All Rights Reserved.
 // Copyright (c) W2.Wizard 2020-2021. All Rights Reserved.
 
 #pragma once
@@ -7,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "Framework/Application/SlateApplication.h"
+#include "ColorWheelTypes.h"
 
 // Generated.h
 #include "ColorWheelHelper.generated.h"
@@ -55,6 +57,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta=(DisplayName="Hex ➜ LinearColor", Keywords = "hex convert rgb linear"))
     static FORCEINLINE FLinearColor HexToLinearColor(FString Hex) { return FLinearColor(FColor::FromHex(Hex)); }
 
+    /**
+    * Converts a Hex from an FString value to a FColorHSV value, needs to contain all channels so simply writing #FF won't
+    * work!
+    * @param Hex The Hexadecimal string value
+    * @return Returns the HSV value of the Hexadecimal value
+	*/
+    UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta = (DisplayName = "Hex ➜ HSV", Keywords = "hex convert hsv"))
+    static FORCEINLINE FColorHSV HexToColorHSV(FString Hex) { return FColorHSV(FLinearColor(FColor::FromHex(Hex))); }
+
 	/**
 	*	Converts a FColor value to a FString value in Hexadecimal.
 	*	@param Color			The RGBA Color
@@ -72,6 +83,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta=(DisplayName="LinearColor ➜ Hex", Keywords = "hex convert rgb linear"))
     static FORCEINLINE FString LinearColorToHex(const FLinearColor Color, const bool IsSRGB) { return Color.ToFColor(IsSRGB).ToHex(); }
 
+    /**
+    * Converts a FColorHSV value to a FString value in Hexadecimal.
+    * @param Color The HSV color to convert
+    * @param IsSRGB Is the linear color in SRGB?
+    * @return The Hex value as string
+	*/
+    UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta = (DisplayName = "HSV ➜ Hex", Keywords = "hex convert hsv"))
+    static FORCEINLINE FString ColorHSVToHex(const FColorHSV& Color, const bool IsSRGB) { return Color.GetLinearColor().ToFColor(IsSRGB).ToHex(); }
 
 	/**
 	 * Returns a randomized linear color value
@@ -101,4 +120,31 @@ public:
 		// Not sure if FSlateApplication is a safe way of getting the cursor position, but it does work.
 		return FPlatformApplicationMisc::GetScreenPixelColor(FSlateApplication::Get().GetCursorPos(), 2.2f);
 	};
+
+    /**
+    * Converts a FColorHSV value to a FLinearColor.    
+    * @param Color The HSV color to convert
+    * @return The converted LinearColor
+	*/
+    UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta = (DisplayName = "HSV ➜ LinearColor", Keywords = "hsv convert linear"))
+    static FLinearColor HSVToLinearColor(const FColorHSV& Color)
+	{
+		return Color.GetLinearColor();
+	}
+	
+    /**
+    * Converts a FLinearColor value to a FColorHSV value.
+    * @param Color The LinearColor to convert
+    * @return The converted HSV color    
+	*/
+    UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|Conversion", meta = (DisplayName = "LinearColor ➜ HSV", Keywords = "linear convert hsv"))
+    static FColorHSV LinearColorToHSV(const FLinearColor& Color);
+
+	
+    UFUNCTION(BlueprintPure, Category = "Color Wheel Helper|HSV", meta = (DisplayName = "Equals=", Keywords = "hsv equals compare"))
+    static bool EqualsColorHSV(const FColorHSV& A, const FColorHSV& B)
+    {
+        return A == B;
+    }
+
 };
